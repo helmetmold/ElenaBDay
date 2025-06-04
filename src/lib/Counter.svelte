@@ -302,6 +302,7 @@
     justify-content: center;
     width: 100%;
     min-height: 0;
+    position: relative;
   }
 
   .slide {
@@ -329,6 +330,8 @@
     line-height: 1.2;
     max-width: 600px;
     text-align: center;
+    padding-left: 30px;
+    padding-right: 30px;
   }
 
   .slide-image {
@@ -441,9 +444,11 @@
 
   .navigation {
     display: flex;
+    position: absolute;
     justify-content: center;
     padding: 5px 0;
     flex-shrink: 0;
+    bottom: 150px;
   }
 
   .nav-btn {
@@ -544,7 +549,9 @@
     }
     
     .slide-text {
-      margin: 3px 0;
+      margin: 20px 20px;
+      padding-left: 100px;
+      padding-right: 100px;
     }
     
     .slide-image {
