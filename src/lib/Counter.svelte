@@ -8,6 +8,7 @@
   let cakesEaten = $state(0);
   let rocketLaunched = $state(false);
   let audioInitialized = $state(false);
+  let audioLoading = $state(false);
   
   // Create audio elements
   let drumrollAudio;
@@ -15,32 +16,50 @@
   
   // Initialize audio on first user interaction
   function initializeAudio() {
-    if (!audioInitialized) {
+    if (!audioInitialized && !audioLoading) {
+      audioLoading = true;
       try {
         // Create audio elements with proper paths
         drumrollAudio = new Audio();
         drumrollAudio.src = '/drumroll.wav';
         drumrollAudio.volume = 0.5;
-        drumrollAudio.preload = 'auto';
+        drumrollAudio.preload = 'metadata'; // Changed from 'auto' for mobile
+        drumrollAudio.crossOrigin = 'anonymous';
         
         houndmouthAudio = new Audio();
         houndmouthAudio.src = '/Houndmouth - Sedona.mp3';
         houndmouthAudio.volume = 0.7;
-        houndmouthAudio.preload = 'auto';
+        houndmouthAudio.preload = 'metadata'; // Changed from 'auto' for mobile
+        houndmouthAudio.crossOrigin = 'anonymous';
+        
+        // Add load event listeners
+        drumrollAudio.addEventListener('canplaythrough', () => {
+          console.log('Drumroll audio loaded');
+        });
+        
+        houndmouthAudio.addEventListener('canplaythrough', () => {
+          console.log('Houndmouth audio loaded');
+        });
         
         // Try to create and resume audio context for mobile
         const AudioContextClass = window.AudioContext || window['webkitAudioContext'];
         if (AudioContextClass) {
           const audioContext = new AudioContextClass();
           if (audioContext.state === 'suspended') {
-            audioContext.resume();
+            audioContext.resume().then(() => {
+              console.log('Audio context resumed');
+            }).catch(err => {
+              console.log('Audio context resume failed:', err);
+            });
           }
         }
         
         audioInitialized = true;
+        audioLoading = false;
         console.log('Audio initialized successfully');
       } catch (error) {
         console.log('Audio initialization failed:', error);
+        audioLoading = false;
       }
     }
   }
@@ -133,6 +152,10 @@
     if (drumrollAudio) {
       // Reset audio to beginning and play
       drumrollAudio.currentTime = 0;
+      
+      // Load the audio first if needed
+      drumrollAudio.load();
+      
       const playPromise = drumrollAudio.play();
       
       if (playPromise !== undefined) {
@@ -142,12 +165,23 @@
           })
           .catch(err => {
             console.log('Drumroll play failed:', err);
-            // Fallback: try to play after a small delay
+            // Multiple fallback attempts for mobile
             setTimeout(() => {
-              drumrollAudio.play().catch(e => console.log('Drumroll retry failed:', e));
+              drumrollAudio.load();
+              drumrollAudio.play().catch(e => {
+                console.log('Drumroll retry 1 failed:', e);
+                // Final fallback
+                setTimeout(() => {
+                  const newAudio = new Audio('/drumroll.wav');
+                  newAudio.volume = 0.5;
+                  newAudio.play().catch(e2 => console.log('Drumroll final retry failed:', e2));
+                }, 100);
+              });
             }, 100);
           });
       }
+    } else {
+      console.log('Drumroll audio not initialized');
     }
     
     setTimeout(nextSlide, 2000);
@@ -181,6 +215,10 @@
     if (houndmouthAudio) {
       // Reset audio to beginning and play
       houndmouthAudio.currentTime = 0;
+      
+      // Load the audio first if needed
+      houndmouthAudio.load();
+      
       const playPromise = houndmouthAudio.play();
       
       if (playPromise !== undefined) {
@@ -190,12 +228,23 @@
           })
           .catch(err => {
             console.log('Houndmouth play failed:', err);
-            // Fallback: try to play after a small delay
+            // Multiple fallback attempts for mobile
             setTimeout(() => {
-              houndmouthAudio.play().catch(e => console.log('Houndmouth retry failed:', e));
+              houndmouthAudio.load();
+              houndmouthAudio.play().catch(e => {
+                console.log('Houndmouth retry 1 failed:', e);
+                // Final fallback
+                setTimeout(() => {
+                  const newAudio = new Audio('/Houndmouth - Sedona.mp3');
+                  newAudio.volume = 0.7;
+                  newAudio.play().catch(e2 => console.log('Houndmouth final retry failed:', e2));
+                }, 100);
+              });
             }, 100);
           });
       }
+    } else {
+      console.log('Houndmouth audio not initialized');
     }
   }
 
@@ -242,6 +291,9 @@
         
         {#if slides[currentSlide].type === "text"}
           <h1 class="slide-text">{slides[currentSlide].text}</h1>
+          {#if currentSlide === 0}
+            <p class="audio-note">🔊 Tap to enable sound</p>
+          {/if}
         
         {:else if slides[currentSlide].type === "image"}
           <h1 class="slide-text">{slides[currentSlide].text}</h1>
@@ -719,6 +771,14 @@
     font-size: clamp(0.8rem, 2vw, 1.2rem);
     color: #666;
     margin: 5px 0;
+    max-width: 400px;
+    text-align: center;
+  }
+
+  .audio-note {
+    font-size: clamp(0.8rem, 2vw, 1rem);
+    color: #666;
+    margin-top: 5px;
     max-width: 400px;
     text-align: center;
   }
