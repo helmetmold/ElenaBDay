@@ -481,7 +481,6 @@
     width: 100%;
     height: 200px;
     margin: 20px auto;
-    overflow: hidden;
   }
 
   .elena-orbit {
@@ -489,6 +488,7 @@
     border-radius: 50%;
     position: absolute;
     top: 50%;
+    z-index: 100;
     animation: flyAcross 3s linear infinite, zoom 3s ease-in-out infinite alternate;
   }
 
