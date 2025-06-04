@@ -7,6 +7,43 @@
   let isTransitioning = $state(false);
   let cakesEaten = $state(0);
   let rocketLaunched = $state(false);
+  let audioInitialized = $state(false);
+  
+  // Create audio elements
+  let drumrollAudio;
+  let houndmouthAudio;
+  
+  // Initialize audio on first user interaction
+  function initializeAudio() {
+    if (!audioInitialized) {
+      try {
+        // Create audio elements with proper paths
+        drumrollAudio = new Audio();
+        drumrollAudio.src = '/drumroll.wav';
+        drumrollAudio.volume = 0.5;
+        drumrollAudio.preload = 'auto';
+        
+        houndmouthAudio = new Audio();
+        houndmouthAudio.src = '/Houndmouth - Sedona.mp3';
+        houndmouthAudio.volume = 0.7;
+        houndmouthAudio.preload = 'auto';
+        
+        // Try to create and resume audio context for mobile
+        const AudioContextClass = window.AudioContext || window['webkitAudioContext'];
+        if (AudioContextClass) {
+          const audioContext = new AudioContextClass();
+          if (audioContext.state === 'suspended') {
+            audioContext.resume();
+          }
+        }
+        
+        audioInitialized = true;
+        console.log('Audio initialized successfully');
+      } catch (error) {
+        console.log('Audio initialization failed:', error);
+      }
+    }
+  }
   
   const slides = [
     { text: "Hi Elena! 👋 (turn on sound)", type: "text" },
@@ -56,6 +93,9 @@
   ];
 
   function nextSlide() {
+    // Initialize audio on first interaction
+    initializeAudio();
+    
     const slide = slides[currentSlide];
     
     // Special conditions for certain slides
@@ -81,25 +121,51 @@
   }
 
   function clickFood(foodName) {
+    // Initialize audio on first interaction
+    initializeAudio();
     foodClicked = new Set([...foodClicked, foodName]);
   }
 
   function playDrumroll() {
-    // Play drumroll sound from assets
-    const audio = new Audio('/src/assets/drumroll.wav'); // Adjust the filename if different
-    audio.volume = 0.5; // Adjust volume as needed
-    audio.play().catch(err => console.log('Audio play failed:', err));
+    // Initialize audio if not already done
+    initializeAudio();
+    
+    if (drumrollAudio) {
+      // Reset audio to beginning and play
+      drumrollAudio.currentTime = 0;
+      const playPromise = drumrollAudio.play();
+      
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            console.log('Drumroll playing successfully');
+          })
+          .catch(err => {
+            console.log('Drumroll play failed:', err);
+            // Fallback: try to play after a small delay
+            setTimeout(() => {
+              drumrollAudio.play().catch(e => console.log('Drumroll retry failed:', e));
+            }, 100);
+          });
+      }
+    }
     
     setTimeout(nextSlide, 2000);
   }
 
   function handleInput(event) {
+    // Initialize audio on first interaction
+    initializeAudio();
+    
     if (event.key === 'Enter' && userResponse.trim()) {
       nextSlide();
     }
   }
 
   function eatCake() {
+    // Initialize audio on first interaction
+    initializeAudio();
+    
     cakesEaten++;
     if (cakesEaten >= 5) {
       setTimeout(() => {
@@ -109,12 +175,34 @@
   }
 
   function playHoundmouthSong() {
-    const audio = new Audio('/src/assets/Houndmouth - Sedona.mp3');
-    audio.volume = 0.7; // Adjust volume as needed
-    audio.play().catch(err => console.log('Audio play failed:', err));
+    // Initialize audio if not already done
+    initializeAudio();
+    
+    if (houndmouthAudio) {
+      // Reset audio to beginning and play
+      houndmouthAudio.currentTime = 0;
+      const playPromise = houndmouthAudio.play();
+      
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            console.log('Houndmouth song playing successfully');
+          })
+          .catch(err => {
+            console.log('Houndmouth play failed:', err);
+            // Fallback: try to play after a small delay
+            setTimeout(() => {
+              houndmouthAudio.play().catch(e => console.log('Houndmouth retry failed:', e));
+            }, 100);
+          });
+      }
+    }
   }
 
   function launchRocket() {
+    // Initialize audio on first interaction
+    initializeAudio();
+    
     rocketLaunched = true;
     setTimeout(() => {
       nextSlide();
