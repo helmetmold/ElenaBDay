@@ -9,7 +9,7 @@
   let rocketLaunched = $state(false);
   
   const slides = [
-    { text: "Hi Elena! 👋", type: "text" },
+    { text: "Hi Elena! 👋 (turn on sound)", type: "text" },
     { text: "This is Kai", type: "image", image: "https://i.imgur.com/d0bCvXi.jpeg" },
     { text: "Happy Birthday!", type: "text" },
     { text: "26, wow that's old", type: "image", image: "https://i.imgur.com/0zFdc3P.png" },
