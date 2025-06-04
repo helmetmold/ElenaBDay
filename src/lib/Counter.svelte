@@ -24,7 +24,7 @@
     { text: "cake break!", type: "text" },
     { text: "eat the cake!", type: "cake-eating" },
     { text: "bro, you just ate 5 cakes", type: "text" },
-    { text: "fatass", type: "text" },
+    { text: "gawd dayum!", type: "text" },
     { text: "congrats on your 26th adventure around the sun", type: "orbit", elenaImage: "https://i.imgur.com/AUblpxy.png" },
     { text: "Subway surfers adhd break", type: "gif" },
     { text: "whats your birthday wish for 26?", type: "input" },
